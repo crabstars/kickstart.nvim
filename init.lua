@@ -219,6 +219,11 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+
+  -- spec = {
+  --   { 'LazyVim/LazyVim', import = 'lazyvim.plugins' },
+  --   { import = 'lazyvim.plugins.extras.lang.go' },
+  -- },
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   -- 'ray-x/go.nvim',
@@ -260,10 +265,18 @@ require('lazy').setup({
       'ray-x/guihua.lua',
       'neovim/nvim-lspconfig',
       'nvim-treesitter/nvim-treesitter',
+      'nvimtools/none-ls.nvim',
     },
     config = function()
       require('go').setup()
-      require('go.inlay').setup()
+      local format_sync_grp = vim.api.nvim_create_augroup('goimports', {})
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        pattern = '*.go',
+        callback = function()
+          require('go.format').goimports()
+        end,
+        group = format_sync_grp,
+      })
     end,
     event = { 'CmdlineEnter' },
     ft = { 'go', 'gomod' },
@@ -453,26 +466,7 @@ require('lazy').setup({
       { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
-      -- Brief aside: **What is LSP?**
-      --
-      -- LSP is an initialism you've probably heard, but might not understand what it is.
-      --
-      -- LSP stands for Language Server Protocol. It's a protocol that helps editors
-      -- and language tooling communicate in a standardized fashion.
-      --
-      -- In general, you have a "server" which is some tool built to understand a particular
-      -- language (such as `gopls`, `lua_ls`, `rust_analyzer`, etc.). These Language Servers
-      -- (sometimes called LSP servers, but that's kind of like ATM Machine) are standalone
-      -- processes that communicate with some "client" - in this case, Neovim!
-      --
-      -- LSP provides Neovim with features like:
-      --  - Go to definition
-      --  - Find references
-      --  - Autocompletion
-      --  - Symbol Search
-      --  - and more!
-      --
-      -- Thus, Language Servers are external tools that must be installed separately from
+      -- Language Servers are external tools that must be installed separately from
       -- Neovim. This is where `mason` and related plugins come into play.
       --
       -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
@@ -594,9 +588,43 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
+        gopls = {
+          gofumpt = true,
+          codelenses = {
+            gc_details = false,
+            generate = true,
+            regenerate_cgo = true,
+            run_govulncheck = true,
+            test = true,
+            tidy = true,
+            upgrade_dependency = true,
+            vendor = true,
+          },
+          hints = {
+            assignVariableTypes = true,
+            compositeLiteralFields = true,
+            compositeLiteralTypes = true,
+            constantValues = true,
+            functionTypeParameters = true,
+            parameterNames = true,
+            rangeVariableTypes = true,
+          },
+          analyses = {
+            fieldalignment = true,
+            nilness = true,
+            unusedparams = true,
+            unusedwrite = true,
+            useany = true,
+          },
+          usePlaceholders = true,
+          completeUnimported = true,
+          staticcheck = true,
+          directoryFilters = { '-.git', '-.vscode', '-.idea', '-.vscode-test', '-node_modules' },
+          semanticTokens = true,
+        },
+        omnisharp = {},
         -- pyright = {},
-        -- rust_analyzer = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -820,7 +848,7 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = true } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -833,7 +861,7 @@ require('lazy').setup({
       --  - ci'  - [C]hange [I]nside [']quote
       require('mini.ai').setup { n_lines = 500 }
 
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
+      -- Add/delete/replace surroundopen file where leftings (brackets, quotes, etc.)
       --
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
@@ -936,16 +964,24 @@ require('lazy').setup({
   },
 })
 
--- Run gofmt + goimports on save
--- require('go.inlay').toggle_inlay_hints()
--- require('go.inlay').set_inlay_hints()
-local format_sync_grp = vim.api.nvim_create_augroup('goimports', {})
-vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = '*.go',
+-- Opens file where left
+vim.api.nvim_create_autocmd('BufReadPost', {
   callback = function()
-    require('go.format').goimports()
+    local mark = vim.api.nvim_buf_get_mark(0, '"')
+    local lcount = vim.api.nvim_buf_line_count(0)
+    if mark[1] > 0 and mark[1] <= lcount then
+      vim.api.nvim_win_set_cursor(0, mark)
+    end
   end,
-  group = format_sync_grp,
+})
+
+-- Function to open Neotree at startup
+local function open_neotree()
+  vim.cmd 'Neotree show'
+end
+-- Create an autocommand to run at the start of Neovim
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = open_neotree,
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
