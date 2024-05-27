@@ -311,14 +311,24 @@ require('lazy').setup({
       vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
     end,
   },
-  -- {
-  --   'akinsho/toggleterm.nvim',
-  --   version = '*',
-  --   config = true,
-  --   -- config = function()
-  --   --   vim.keymap.set('n', '<C-/>', ':ToggleTerm direction=float', { noremap = true, silent = true })
-  --   -- end,
-  -- },
+
+  -- Trouble, show all errors and warnings
+  {
+    'folke/trouble.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    opts = {},
+    -- config = function()
+    --   -- This function is called when the plugin is loaded
+    --   vim.api.nvim_create_autocmd('VimEnter', {
+    --     callback = function()
+    --       local current_buf = vim.api.nvim_get_current_buf()
+    --       -- Execute the Trouble command
+    --       vim.cmd 'Trouble'
+    --       vim.cmd('Trouble buf=' .. current_buf)
+    --     end,
+    --   })
+    -- end,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -1021,13 +1031,27 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 })
 
 -- Function to open Neotree at startup
+-- Create an autocommand to run at the start of Neovim
+
+-- TODO: fix by moving it to plugin init, or so that trouble does not take the full lower space and the focus is set correct
 local function open_neotree()
   vim.cmd 'Neotree show'
 end
--- Create an autocommand to run at the start of Neovim
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = open_neotree,
 })
 
+local function open_trouble()
+  vim.cmd 'TroubleToggle'
+end
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = open_trouble,
+})
+-- local function focus_first_buffer()
+--   vim.cmd 'bfirst'
+-- end
+-- vim.api.nvim_create_autocmd('VimEnter', {
+--   callback = focus_first_buffer,
+-- })
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
