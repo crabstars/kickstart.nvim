@@ -299,6 +299,26 @@ require('lazy').setup({
     end,
     -- This is the function that runs, AFTER loading
   },
+
+  -- Toggle Terminal
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config = function()
+      require('toggleterm').setup {
+        direction = 'float',
+      }
+      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
+    end,
+  },
+  -- {
+  --   'akinsho/toggleterm.nvim',
+  --   version = '*',
+  --   config = true,
+  --   -- config = function()
+  --   --   vim.keymap.set('n', '<C-/>', ':ToggleTerm direction=float', { noremap = true, silent = true })
+  --   -- end,
+  -- },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -669,12 +689,37 @@ require('lazy').setup({
       require('mason-lspconfig').setup {
         handlers = {
           function(server_name)
-            local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for tsserver)
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            local capabilities = vim.lsp.protocol.make_client_capabilities()
+            capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
+
+            local servers = servers[server_name]
+              and {
+                gopls = {
+                  capabilities = capabilities,
+                  settings = {
+                    gopls = {
+                      usePlaceholders = true,
+                      completeUnimported = true,
+                      staticcheck = true,
+                      analyses = {
+                        unusedparams = true,
+                      },
+                      hints = {
+                        assignVariableTypes = true,
+                        compositeLiteralFields = true,
+                        compositeLiteralTypes = true,
+                        constantValues = true,
+                        functionTypeParameters = true,
+                        parameterNames = true,
+                        rangeVariableTypes = true,
+                      },
+                    },
+                  },
+                },
+              }
+
+            local server_opts = servers[server_name] or {}
+            require('lspconfig')[server_name].setup(server_opts)
           end,
         },
       }
