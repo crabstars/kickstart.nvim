@@ -283,6 +283,17 @@ require('lazy').setup({
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
 
+  -- Flutter Support
+  {
+    'akinsho/flutter-tools.nvim',
+    lazy = false,
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'stevearc/dressing.nvim', -- optional for vim.ui.select
+    },
+    config = true,
+  },
+
   -- Neo-Tree FileExplorer
   {
     'nvim-neo-tree/neo-tree.nvim',
@@ -296,6 +307,11 @@ require('lazy').setup({
     config = function()
       vim.keymap.set('n', '<leader>Nt', ':Neotree toggle<CR>', { noremap = true, silent = true })
       vim.keymap.set('n', '<leader>Nb', ':Neotree buffers<CR>', { noremap = true, silent = true })
+      require('neo-tree').setup {
+        filesystem = {
+          use_libuv_file_watcher = true,
+        },
+      }
     end,
     -- This is the function that runs, AFTER loading
   },
