@@ -316,6 +316,15 @@ require('lazy').setup({
     -- This is the function that runs, AFTER loading
   },
 
+  -- Auto Brackets
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = true,
+    -- use opts = {} for passing setup options
+    -- this is equalent to setup({}) function
+  },
+
   -- Toggle Terminal
   {
     'akinsho/toggleterm.nvim',
