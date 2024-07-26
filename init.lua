@@ -207,11 +207,8 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- [[ Configure and install plugins ]]
---
 --  To check the current status of your plugins, run
 --    :Lazy
---
 --  You can press `?` in this menu for help. Use `:q` to close the window
 --
 --  To update plugins you can run
@@ -228,10 +225,6 @@ require('lazy').setup({
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   -- 'ray-x/go.nvim',
 
-  -- NOTE: Plugins can also be added by using a table,
-  -- with the first argument being the link and the following
-  -- keys can be used to configure plugin behavior/loading/etc.
-  --
   -- Use `opts = {}` to force a plugin to be loaded.
   --
   --  This is equivalent to:
@@ -283,6 +276,13 @@ require('lazy').setup({
     build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
   },
 
+  -- javascript support
+  {
+    'pmizio/typescript-tools.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    opts = {},
+  },
+
   -- Flutter Support
   {
     'akinsho/flutter-tools.nvim',
@@ -292,6 +292,44 @@ require('lazy').setup({
       'stevearc/dressing.nvim', -- optional for vim.ui.select
     },
     config = true,
+  },
+
+  -- C# Support
+  -- Roslyn LSP setup
+  -- {
+  --   'elpiloto/roslyn.nvim',
+  --   dependencies = {
+  --     'neovim/nvim-lspconfig',
+  --     'nvim-lua/plenary.nvim',
+  --   },
+  --   config = function()
+  --     require('roslyn').setup {
+  --       dotnet_cmd = 'dotnet', -- this is the default
+  --       roslyn_version = '4.8.0-3.23475.7', -- this is the default
+  --       on_attach = require('your_lsp_config').on_attach, -- replace with your actual on_attach function
+  --       capabilities = require('your_lsp_config').capabilities, -- replace with your actual capabilities
+  --     }
+  --   end,
+  --   event = { 'BufRead', 'BufNewFile' },
+  --   ft = { 'cs', 'vb' }, -- file types for C# and VB.NET
+  -- },
+  {
+    'elpiloto/roslyn.nvim',
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      local lsp_config = require 'lsp_config'
+      require('roslyn').setup {
+        dotnet_cmd = 'dotnet', -- this is the default
+        roslyn_version = '4.8.0-3.23475.7', -- this is the default
+        on_attach = lsp_config.on_attach,
+        capabilities = lsp_config.capabilities,
+      }
+    end,
+    event = { 'BufRead', 'BufNewFile' },
+    ft = { 'cs', 'vb' }, -- file types for C# and VB.NET
   },
 
   -- Neo-Tree FileExplorer
@@ -376,18 +414,24 @@ require('lazy').setup({
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-        ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-        ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
+      require('which-key').add {
+        { '<leader>c', group = '[C]ode' },
+        { '<leader>c_', hidden = true },
+        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d_', hidden = true },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>r_', hidden = true },
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>s_', hidden = true },
+        { '<leader>t', group = '[T]oggle' },
+        { '<leader>t_', hidden = true },
+        { '<leader>w', group = '[W]orkspace' },
+        { '<leader>w_', hidden = true },
       }
       -- visual mode
-      require('which-key').register({
-        ['<leader>h'] = { 'Git [H]unk' },
+      require('which-key').add({
+        { '<leader>h', group = 'Git [H]unk' },
+        { '<leader>h_', hidden = true },
       }, { mode = 'v' })
     end,
   },
@@ -720,6 +764,30 @@ require('lazy').setup({
         'stylua', -- Used to format Lua code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      local servers = {
+        gopls = {
+          capabilities = capabilities,
+          settings = {
+            gopls = {
+              usePlaceholders = true,
+              completeUnimported = true,
+              staticcheck = true,
+              analyses = {
+                unusedparams = true,
+              },
+              hints = {
+                assignVariableTypes = true,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = true,
+                constantValues = true,
+                functionTypeParameters = true,
+                parameterNames = true,
+                rangeVariableTypes = true,
+              },
+            },
+          },
+        },
+      }
 
       require('mason-lspconfig').setup {
         handlers = {
@@ -727,33 +795,9 @@ require('lazy').setup({
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-            local servers = servers[server_name]
-              and {
-                gopls = {
-                  capabilities = capabilities,
-                  settings = {
-                    gopls = {
-                      usePlaceholders = true,
-                      completeUnimported = true,
-                      staticcheck = true,
-                      analyses = {
-                        unusedparams = true,
-                      },
-                      hints = {
-                        assignVariableTypes = true,
-                        compositeLiteralFields = true,
-                        compositeLiteralTypes = true,
-                        constantValues = true,
-                        functionTypeParameters = true,
-                        parameterNames = true,
-                        rangeVariableTypes = true,
-                      },
-                    },
-                  },
-                },
-              }
-
             local server_opts = servers[server_name] or {}
+            server_opts.capabilities = capabilities
+
             require('lspconfig')[server_name].setup(server_opts)
           end,
         },
@@ -886,7 +930,7 @@ require('lazy').setup({
           --
           -- <c-l> will move you to the right of each of the expansion locations.
           -- <c-h> is similar, except moving you backwards.
-          ['<C-l>'] = cmp.mapping(function()
+          ['<Tab>'] = cmp.mapping(function()
             if luasnip.expand_or_locally_jumpable() then
               luasnip.expand_or_jump()
             end
@@ -1058,7 +1102,6 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 -- Function to open Neotree at startup
 -- Create an autocommand to run at the start of Neovim
 
--- TODO: fix by moving it to plugin init, or so that trouble does not take the full lower space and the focus is set correct
 local function open_neotree()
   vim.cmd 'Neotree show'
 end
@@ -1066,17 +1109,12 @@ vim.api.nvim_create_autocmd('VimEnter', {
   callback = open_neotree,
 })
 
-local function open_trouble()
-  vim.cmd 'TroubleToggle'
-end
-vim.api.nvim_create_autocmd('VimEnter', {
-  callback = open_trouble,
-})
--- local function focus_first_buffer()
---   vim.cmd 'bfirst'
+-- local function open_trouble()
+--   vim.cmd 'Trouble diagnostics toggle focus=false filter.buf=0'
 -- end
+--
 -- vim.api.nvim_create_autocmd('VimEnter', {
---   callback = focus_first_buffer,
+--   callback = function()
+--     vim.defer_fn(open_trouble, 100)
+--   end,
 -- })
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
