@@ -371,17 +371,6 @@ require('lazy').setup({
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
-      -- Telescope is a fuzzy finder that comes with a lot of different things that
-      -- it can fuzzy find! It's more than just a "file finder", it can search
-      -- many different aspects of Neovim, your workspace, LSP, and more!
-      --
-      -- The easiest way to use Telescope, is to start by doing something like:
-      --  :Telescope help_tags
-      --
-      -- After running this command, a window will open up and you're able to
-      -- type in the prompt window. You'll see a list of `help_tags` options and
-      -- a corresponding preview of the help.
-      --
       -- Two important keymaps to use while in Telescope are:
       --  - Insert mode: <c-/>
       --  - Normal mode: ?
@@ -478,28 +467,28 @@ require('lazy').setup({
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
           end
 
-          -- needed for c#
-          vim.api.nvim_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.typeDefinition()<CR>', { noremap = true, silent = true })
-          -- Jump to the definition of the word under your cursor.
-          --  This is where a variable was first declared, or where a function is defined, etc.
-          --  To jump back, press <C-t>.
-          -- map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          local set_csharp_mappings = function()
+            vim.api.nvim_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', { noremap = true, silent = true })
+            vim.api.nvim_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', { noremap = true, silent = true })
+            vim.api.nvim_set_keymap('n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', { noremap = true, silent = true })
+            vim.api.nvim_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.typeDefinition()<CR>', { noremap = true, silent = true })
+          end
 
-          -- vim.lsp.buf.implementation
-          -- Find references for the word under your cursor.
-          -- map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          -- Function to set generic LSP mappings
+          local set_generic_mappings = function()
+            map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+            map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+            map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+            map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          end
 
-          -- Jump to the implementation of the word under your cursor.
-          --  Useful when your language has ways of declaring types without an actual implementation.
-          -- map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
-          -- Jump to the type of the word under your cursor.
-          --  Useful when you're not sure what type a variable is and you want to see
-          --  the definition of its *type*, not where it was *defined*.
-          -- map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+          -- Determine file type and set appropriate mappings
+          local ft = vim.bo[event.buf].filetype
+          if ft == 'cs' then
+            set_csharp_mappings()
+          else
+            set_generic_mappings()
+          end
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -525,27 +514,6 @@ require('lazy').setup({
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
-          -- Add a check for C# files and override specific bindings
-          -- if vim.bo[event.buf].filetype == 'cs' then
-          --   local opts = { buffer = event.buf, desc = 'LSP: ', noremap = true, silent = true }
-          --
-          --   map('gd', '<cmd>lua vim.lsp.buf.definition()<CR>', '[G]oto [D]efinition')
-          --   vim.keymap.set('n', 'gd', function()
-          --     require('omnisharp_extended').definition_handler()
-          --   end, vim.tbl_extend('force', opts, { desc = opts.desc .. '[G]oto [D]efinition' }))
-          --
-          --   vim.keymap.set('n', 'gr', function()
-          --     require('omnisharp_extended').references_handler()
-          --   end, vim.tbl_extend('force', opts, { desc = opts.desc .. '[G]oto [R]eferences' }))
-          --
-          --   vim.keymap.set('n', 'gI', function()
-          --     require('omnisharp_extended').implementation_handler()
-          --   end, vim.tbl_extend('force', opts, { desc = opts.desc .. '[G]oto [I]mplementation' }))
-          --
-          --   vim.keymap.set('n', '<leader>D', function()
-          --     require('omnisharp_extended').type_definition_handler()
-          --   end, vim.tbl_extend('force', opts, { desc = opts.desc .. 'Type [D]efinition' }))
-          -- end
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
           --    See `:help CursorHold` for information about when this is executed
