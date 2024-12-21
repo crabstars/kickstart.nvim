@@ -1,0 +1,2 @@
+- split window ?
+- open oil faster and close, and navigate back. also when closing and open i want to keep the state

@@ -199,17 +199,7 @@ require('lazy').setup({
     -- this is equalent to setup({}) function
   },
 
-  -- Toggle Terminal
-  {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    config = function()
-      require('toggleterm').setup {
-        direction = 'float',
-      }
-      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
-    end,
-  },
+  require 'config.plugins.toggleterm',
 
   -- Trouble, show all errors and warnings
   {
@@ -283,8 +273,8 @@ require('lazy').setup({
     end,
   },
 
-  require 'telescope-config',
-  require 'lua/config/plugins/oil',
+  require 'config.plugins.oil',
+  require 'config.plugins.telescope',
 
   require 'nvim-lspconfig',
   { -- Autoformat
