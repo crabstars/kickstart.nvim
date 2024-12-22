@@ -190,58 +190,6 @@ require('lazy').setup({
     opts = {},
   },
 
-  -- Flutter Support
-  {
-    'akinsho/flutter-tools.nvim',
-    lazy = false,
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'stevearc/dressing.nvim', -- optional for vim.ui.select
-    },
-    config = true,
-  },
-
-  -- {
-  --   'elpiloto/roslyn.nvim',
-  --   dependencies = {
-  --     'neovim/nvim-lspconfig',
-  --     'nvim-lua/plenary.nvim',
-  --   },
-  --   config = function()
-  --     local lsp_config = require 'lsp_config'
-  --     require('roslyn').setup {
-  --       dotnet_cmd = 'dotnet', -- this is the default
-  --       roslyn_version = '4.8.0-3.23475.7', -- this is the default
-  --       on_attach = lsp_config.on_attach,
-  --       capabilities = lsp_config.capabilities,
-  --     }
-  --   end,
-  --   event = { 'BufRead', 'BufNewFile' },
-  --   ft = { 'cs', 'vb' }, -- file types for C# and VB.NET
-  -- },
-
-  -- Neo-Tree FileExplorer
-  {
-    'nvim-neo-tree/neo-tree.nvim',
-    branch = 'v3.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
-      'MunifTanjim/nui.nvim',
-      -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
-    },
-    config = function()
-      vim.keymap.set('n', '<leader>Nt', ':Neotree toggle<CR>', { noremap = true, silent = true })
-      vim.keymap.set('n', '<leader>Nb', ':Neotree buffers<CR>', { noremap = true, silent = true })
-      require('neo-tree').setup {
-        filesystem = {
-          use_libuv_file_watcher = true,
-        },
-      }
-    end,
-    -- This is the function that runs, AFTER loading
-  },
-
   -- Auto Brackets
   {
     'windwp/nvim-autopairs',
@@ -251,34 +199,13 @@ require('lazy').setup({
     -- this is equalent to setup({}) function
   },
 
-  -- Toggle Terminal
-  {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    config = function()
-      require('toggleterm').setup {
-        direction = 'float',
-      }
-      vim.api.nvim_set_keymap('n', '<C-\\>', ':ToggleTerm<CR>', { noremap = true, silent = true })
-    end,
-  },
+  require 'config.plugins.toggleterm',
 
   -- Trouble, show all errors and warnings
   {
     'folke/trouble.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     opts = {},
-    -- config = function()
-    --   -- This function is called when the plugin is loaded
-    --   vim.api.nvim_create_autocmd('VimEnter', {
-    --     callback = function()
-    --       local current_buf = vim.api.nvim_get_current_buf()
-    --       -- Execute the Trouble command
-    --       vim.cmd 'Trouble'
-    --       vim.cmd('Trouble buf=' .. current_buf)
-    --     end,
-    --   })
-    -- end,
   },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -346,7 +273,8 @@ require('lazy').setup({
     end,
   },
 
-  require 'telescope-config',
+  require 'config.plugins.oil',
+  require 'config.plugins.telescope',
 
   require 'nvim-lspconfig',
   { -- Autoformat
@@ -376,8 +304,19 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
+  },
+
+  {
+    -- html auto tag closer
+    'windwp/nvim-ts-autotag',
+    dependencies = 'nvim-treesitter/nvim-treesitter',
+    config = function()
+      require('nvim-ts-autotag').setup()
+    end,
+    event = 'InsertEnter',
   },
 
   { -- Autocompletion
@@ -490,24 +429,24 @@ require('lazy').setup({
       }
     end,
   },
-
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-moon'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-    end,
-  },
+  { 'rose-pine/neovim', name = 'rose-pine' },
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   'folke/tokyonight.nvim',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'tokyonight-moon'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = true } },
@@ -553,7 +492,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'go' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'go', 'svelte', 'typescript' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -561,7 +500,7 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = false,
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -635,16 +574,6 @@ vim.api.nvim_create_autocmd('BufReadPost', {
       vim.api.nvim_win_set_cursor(0, mark)
     end
   end,
-})
-
--- Function to open Neotree at startup
--- Create an autocommand to run at the start of Neovim
-
-local function open_neotree()
-  vim.cmd 'Neotree show'
-end
-vim.api.nvim_create_autocmd('VimEnter', {
-  callback = open_neotree,
 })
 
 -- local function open_trouble()
