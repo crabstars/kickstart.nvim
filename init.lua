@@ -158,6 +158,35 @@ require('lazy').setup({
     },
   },
 
+  -- C# special lsp https://github.com/seblj/roslyn.nvim
+  {
+    'seblj/roslyn.nvim',
+    ft = 'cs',
+    opts = {
+      config = {
+        settings = {
+          ['csharp|inlay_hints'] = {
+            csharp_enable_inlay_hints_for_implicit_object_creation = true,
+            csharp_enable_inlay_hints_for_implicit_variable_types = true,
+            csharp_enable_inlay_hints_for_lambda_parameter_types = true,
+            csharp_enable_inlay_hints_for_types = true,
+            dotnet_enable_inlay_hints_for_indexer_parameters = true,
+            dotnet_enable_inlay_hints_for_literal_parameters = true,
+            dotnet_enable_inlay_hints_for_object_creation_parameters = true,
+            dotnet_enable_inlay_hints_for_other_parameters = true,
+            dotnet_enable_inlay_hints_for_parameters = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_differ_only_by_suffix = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_match_argument_name = true,
+            dotnet_suppress_inlay_hints_for_parameters_that_match_method_intent = true,
+          },
+          ['csharp|code_lens'] = {
+            dotnet_enable_references_code_lens = true,
+          },
+        },
+      },
+    },
+  },
+
   -- Go packages
   {
     'ray-x/go.nvim',
@@ -275,6 +304,7 @@ require('lazy').setup({
 
   require 'config.plugins.oil',
   require 'config.plugins.telescope',
+  require 'config.plugins.omnisharp-vim',
 
   require 'nvim-lspconfig',
   { -- Autoformat
@@ -576,6 +606,35 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
+  pattern = '*',
+  callback = function()
+    if #vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() } > 0 then
+      vim.lsp.codelens.refresh()
+    end
+  end,
+})
+
+vim.lsp.inlay_hint.enable(true)
+
+vim.keymap.set('n', '<leader>sR', function()
+  require('telescope.builtin').lsp_references()
+end, { noremap = true, silent = true, desc = 'Show all references in telescope' })
+-- vim.keymap.set('i', '<C-h>', function()
+--   if vim.fn.pumvisible() ~= 0 then
+--     return vim.fn['signature_help#next_parameter']()
+--   else
+--     return '<C-h>'
+--   end
+-- end, { expr = true, silent = true })
+--
+-- vim.keymap.set('i', '<C-k>', function()
+--   if vim.fn.pumvisible() ~= 0 then
+--     return vim.fn['signature_help#prev_parameter']()
+--   else
+--     return '<C-k>'
+--   end
+-- end, { expr = true, silent = true })
 -- local function open_trouble()
 --   vim.cmd 'Trouble diagnostics toggle focus=false filter.buf=0'
 -- end

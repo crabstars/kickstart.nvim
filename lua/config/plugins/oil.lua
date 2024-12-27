@@ -18,3 +18,4 @@ return {
 }
 -- start with :e .
 -- start with :e /paht/to/location
+-- "-" for going back a folder

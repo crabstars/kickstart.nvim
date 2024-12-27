@@ -16,6 +16,12 @@ return { -- LSP Configuration & Plugins
     { 'Hoffs/omnisharp-extended-lsp.nvim' },
   },
   config = function()
+    require('mason').setup {
+      registries = {
+        'github:mason-org/mason-registry',
+        'github:Crashdummyy/mason-registry',
+      },
+    }
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
       callback = function(event)
