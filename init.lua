@@ -187,6 +187,24 @@ require('lazy').setup({
     },
   },
 
+  -- TODO: change so that it works on linux with Alt instead of M
+  {
+    'ray-x/lsp_signature.nvim',
+    event = 'VeryLazy',
+    config = function()
+      require('lsp_signature').setup {
+        bind = true,
+        handler_opts = {
+          border = 'rounded',
+        },
+        max_height = 60,
+        toggle_key = '<M-k>', -- Toggle signature on and off in insert mode
+        select_signature_key = '<M-n>',
+        move_cursor_key = '<M-p>', -- Move to other window
+      }
+    end,
+  },
+
   -- Go packages
   {
     'ray-x/go.nvim',
@@ -459,6 +477,18 @@ require('lazy').setup({
       }
     end,
   },
+
+  -- {
+  --   'hrsh7th/cmp-nvim-lsp-signature-help',
+  --   config = function()
+  --     local cmp = require 'cmp'
+  --     cmp.setup {
+  --       sources = {
+  --         { name = 'nvim_lsp_signature_help' },
+  --       },
+  --     }
+  --   end,
+  -- },
   { 'rose-pine/neovim', name = 'rose-pine' },
   -- { -- You can easily change to a different colorscheme.
   --   -- Change the name of the colorscheme plugin below, and then
@@ -620,27 +650,3 @@ vim.lsp.inlay_hint.enable(true)
 vim.keymap.set('n', '<leader>sR', function()
   require('telescope.builtin').lsp_references()
 end, { noremap = true, silent = true, desc = 'Show all references in telescope' })
--- vim.keymap.set('i', '<C-h>', function()
---   if vim.fn.pumvisible() ~= 0 then
---     return vim.fn['signature_help#next_parameter']()
---   else
---     return '<C-h>'
---   end
--- end, { expr = true, silent = true })
---
--- vim.keymap.set('i', '<C-k>', function()
---   if vim.fn.pumvisible() ~= 0 then
---     return vim.fn['signature_help#prev_parameter']()
---   else
---     return '<C-k>'
---   end
--- end, { expr = true, silent = true })
--- local function open_trouble()
---   vim.cmd 'Trouble diagnostics toggle focus=false filter.buf=0'
--- end
---
--- vim.api.nvim_create_autocmd('VimEnter', {
---   callback = function()
---     vim.defer_fn(open_trouble, 100)
---   end,
--- })
