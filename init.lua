@@ -122,6 +122,13 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+-- local overloads = require 'config/plugins/lsp_overloads'
+-- vim.api.nvim_create_user_command('ShowOverloads', overloads.show_all_overloads, { desc = 'Show all function overloads' })
+-- vim.api.nvim_set_keymap('n', '<C-k>', ':lua require("config.plugins.lsp_overloads").show_all_overloads()<CR>', { noremap = true, silent = true })
+local overloads = require 'config/plugins/lsp_overloads'
+vim.api.nvim_create_user_command('ShowOverloads', overloads.show_all_overloads, { desc = 'Show all function overloads' })
+vim.api.nvim_set_keymap('n', '<C-k>', '<Cmd>lua require("config.plugins.lsp_overloads").show_all_overloads()<CR>', { noremap = true, silent = true })
+------------------------------
 --  To check the current status of your plugins, run
 --    :Lazy
 --  You can press `?` in this menu for help. Use `:q` to close the window
@@ -188,21 +195,25 @@ require('lazy').setup({
   },
 
   -- TODO: change so that it works on linux with Alt instead of M
+  -- {
+  --   'ray-x/lsp_signature.nvim',
+  --   event = 'VeryLazy',
+  --   config = function()
+  --     require('lsp_signature').setup {
+  --       bind = true,
+  --       handler_opts = {
+  --         border = 'rounded',
+  --       },
+  --       max_height = 60,
+  --       toggle_key = '<M-k>', -- Toggle signature on and off in insert mode
+  --       select_signature_key = '<M-n>',
+  --       move_cursor_key = '<M-p>', -- Move to other window
+  --     }
+  --   end,
+  -- },
+
   {
-    'ray-x/lsp_signature.nvim',
-    event = 'VeryLazy',
-    config = function()
-      require('lsp_signature').setup {
-        bind = true,
-        handler_opts = {
-          border = 'rounded',
-        },
-        max_height = 60,
-        toggle_key = '<M-k>', -- Toggle signature on and off in insert mode
-        select_signature_key = '<M-n>',
-        move_cursor_key = '<M-p>', -- Move to other window
-      }
-    end,
+    'Issafalcon/lsp-overloads.nvim',
   },
 
   -- Go packages
@@ -322,7 +333,6 @@ require('lazy').setup({
 
   require 'config.plugins.oil',
   require 'config.plugins.telescope',
-  require 'config.plugins.omnisharp-vim',
 
   require 'nvim-lspconfig',
   { -- Autoformat
@@ -489,24 +499,24 @@ require('lazy').setup({
   --     }
   --   end,
   -- },
-  { 'rose-pine/neovim', name = 'rose-pine' },
-  -- { -- You can easily change to a different colorscheme.
-  --   -- Change the name of the colorscheme plugin below, and then
-  --   -- change the command in the config to whatever the name of that colorscheme is.
-  --   --
-  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  --   'folke/tokyonight.nvim',
-  --   priority = 1000, -- Make sure to load this before all the other start plugins.
-  --   init = function()
-  --     -- Load the colorscheme here.
-  --     -- Like many other themes, this one has different styles, and you could load
-  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  --     vim.cmd.colorscheme 'tokyonight-moon'
-  --
-  --     -- You can configure highlights by doing something like:
-  --     vim.cmd.hi 'Comment gui=none'
-  --   end,
-  -- },
+  -- { 'rose-pine/neovim', name = 'rose-pine' },
+  { -- You can easily change to a different colorscheme.
+    -- Change the name of the colorscheme plugin below, and then
+    -- change the command in the config to whatever the name of that colorscheme is.
+    --
+    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+    'folke/tokyonight.nvim',
+    priority = 1000, -- Make sure to load this before all the other start plugins.
+    init = function()
+      -- Load the colorscheme here.
+      -- Like many other themes, this one has different styles, and you could load
+      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+      vim.cmd.colorscheme 'tokyonight-moon'
+
+      -- You can configure highlights by doing something like:
+      vim.cmd.hi 'Comment gui=none'
+    end,
+  },
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = true } },
@@ -636,6 +646,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
   end,
 })
 
+-- c# roslyn
 vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
   pattern = '*',
   callback = function()
@@ -647,6 +658,15 @@ vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
 
 vim.lsp.inlay_hint.enable(true)
 
+-- show references
 vim.keymap.set('n', '<leader>sR', function()
   require('telescope.builtin').lsp_references()
 end, { noremap = true, silent = true, desc = 'Show all references in telescope' })
+
+-- make quickfix list editable
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  pattern = 'quickfix',
+  callback = function()
+    vim.opt_local.modifiable = true
+  end,
+})
