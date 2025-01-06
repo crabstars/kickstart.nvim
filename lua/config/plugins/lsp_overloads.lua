@@ -1,7 +1,6 @@
 local M = {}
 
 -- Store the current selection state
-local current_selection = 1
 local current_buf = nil
 local current_win = nil
 local overloads_list = {}
@@ -14,9 +13,6 @@ local function update_window_content()
   local lines = {}
   table.insert(lines, '```csharp')
   for i, overload in ipairs(overloads_list) do
-    local prefix = i == current_selection and '→ ' or '  '
-    local current_line = #lines + 1
-    -- Add markdown code block for C# syntax highlighting
     table.insert(lines, '  ' .. overload.label)
     table.insert(lines, '  //' .. overload.documentation)
     table.insert(lines, '')
@@ -26,48 +22,48 @@ local function update_window_content()
   vim.api.nvim_buf_set_lines(current_buf, 0, -1, false, lines)
   vim.api.nvim_buf_set_option(current_buf, 'modifiable', false)
 end
-
-local function move_selection(delta)
-  local new_selection = current_selection + delta
-  if new_selection >= 1 and new_selection <= #overloads_list then
-    current_selection = new_selection
-    update_window_content()
-  end
-end
-
-local function setup_keymaps()
-  if not current_buf then
-    return
-  end
-
-  -- Navigation keymaps
-  vim.api.nvim_buf_set_keymap(current_buf, 'n', '<C-n>', '', {
-    callback = function()
-      move_selection(1)
-    end,
-    noremap = true,
-    silent = true,
-  })
-
-  vim.api.nvim_buf_set_keymap(current_buf, 'n', '<C-p>', '', {
-    callback = function()
-      move_selection(-1)
-    end,
-    noremap = true,
-    silent = true,
-  })
-
-  -- Close window keymap
-  vim.api.nvim_buf_set_keymap(current_buf, 'n', 'q', '', {
-    callback = function()
-      if current_win and vim.api.nvim_win_is_valid(current_win) then
-        vim.api.nvim_win_close(current_win, true)
-      end
-    end,
-    noremap = true,
-    silent = true,
-  })
-end
+--
+-- local function move_selection(delta)
+--   local new_selection = current_selection + delta
+--   if new_selection >= 1 and new_selection <= #overloads_list then
+--     current_selection = new_selection
+--     update_window_content()
+--   end
+-- end
+--
+-- local function setup_keymaps()
+--   if not current_buf then
+--     return
+--   end
+--
+--   -- Navigation keymaps
+--   vim.api.nvim_buf_set_keymap(current_buf, 'n', '<C-n>', '', {
+--     callback = function()
+--       move_selection(1)
+--     end,
+--     noremap = true,
+--     silent = true,
+--   })
+--
+--   vim.api.nvim_buf_set_keymap(current_buf, 'n', '<C-p>', '', {
+--     callback = function()
+--       move_selection(-1)
+--     end,
+--     noremap = true,
+--     silent = true,
+--   })
+--
+--   -- Close window keymap
+--   vim.api.nvim_buf_set_keymap(current_buf, 'n', 'q', '', {
+--     callback = function()
+--       if current_win and vim.api.nvim_win_is_valid(current_win) then
+--         vim.api.nvim_win_close(current_win, true)
+--       end
+--     end,
+--     noremap = true,
+--     silent = true,
+--   })
+-- end
 
 -- Helper functions remain the same
 local function get_function_name()
@@ -85,7 +81,7 @@ local function format_function_signature(label)
     local formatted_signature = params .. ': ' .. return_type
     return formatted_signature
   else
-    vim.notify('Failed to parse function signature: ' .. label, vim.log.levels.WARN)
+    -- vim.notify('Failed to parse function signature: ' .. label, vim.log.levels.WARN)
     return nil
   end
 end
@@ -156,7 +152,7 @@ function M.show_all_overloads()
 
     create_floating_window()
     update_window_content()
-    setup_keymaps()
+    -- setup_keymaps()
   end)
 end
 

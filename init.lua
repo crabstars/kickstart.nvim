@@ -128,6 +128,8 @@ vim.opt.rtp:prepend(lazypath)
 local overloads = require 'config/plugins/lsp_overloads'
 vim.api.nvim_create_user_command('ShowOverloads', overloads.show_all_overloads, { desc = 'Show all function overloads' })
 vim.api.nvim_set_keymap('n', '<C-k>', '<Cmd>lua require("config.plugins.lsp_overloads").show_all_overloads()<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<leader>p', ':lua require("config/plugins/popup").create()<CR>', { noremap = true, silent = true })
 ------------------------------
 --  To check the current status of your plugins, run
 --    :Lazy
@@ -165,6 +167,19 @@ require('lazy').setup({
     },
   },
 
+  -- refacotor functions
+  {
+    'ThePrimeagen/refactoring.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    lazy = false,
+    config = function()
+      require('refactoring').setup()
+    end,
+  },
+
   -- C# special lsp https://github.com/seblj/roslyn.nvim
   {
     'seblj/roslyn.nvim',
@@ -192,28 +207,6 @@ require('lazy').setup({
         },
       },
     },
-  },
-
-  -- TODO: change so that it works on linux with Alt instead of M
-  -- {
-  --   'ray-x/lsp_signature.nvim',
-  --   event = 'VeryLazy',
-  --   config = function()
-  --     require('lsp_signature').setup {
-  --       bind = true,
-  --       handler_opts = {
-  --         border = 'rounded',
-  --       },
-  --       max_height = 60,
-  --       toggle_key = '<M-k>', -- Toggle signature on and off in insert mode
-  --       select_signature_key = '<M-n>',
-  --       move_cursor_key = '<M-p>', -- Move to other window
-  --     }
-  --   end,
-  -- },
-
-  {
-    'Issafalcon/lsp-overloads.nvim',
   },
 
   -- Go packages
@@ -650,7 +643,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
   pattern = '*',
   callback = function()
-    if #vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() } > 0 then
+    if #vim.lsp.get_clients { bufnr = vim.api.nvim_get_current_buf() } > 0 then
       vim.lsp.codelens.refresh()
     end
   end,
