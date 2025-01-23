@@ -244,6 +244,7 @@ require('lazy').setup({
   require 'config.plugins.gitsigns',
   require 'config.plugins.treesitter',
   require 'config.nvim-lspconfig',
+  require 'custom-code-actions',
 
   { -- Autoformat
     'stevearc/conform.nvim',
@@ -468,7 +469,7 @@ vim.api.nvim_create_autocmd('BufReadPost', {
 vim.api.nvim_create_autocmd({ 'BufWritePost', 'BufEnter' }, {
   pattern = '*',
   callback = function()
-    if #vim.lsp.get_active_clients { bufnr = vim.api.nvim_get_current_buf() } > 0 then
+    if #vim.lsp.get_clients { bufnr = vim.api.nvim_get_current_buf() } > 0 then
       vim.lsp.codelens.refresh()
     end
   end,
@@ -487,4 +488,20 @@ vim.api.nvim_create_autocmd('BufWinEnter', {
   callback = function()
     vim.opt_local.modifiable = true
   end,
+})
+
+-- run :make to compile or <leader>cc (see which_key)
+vim.api.nvim_create_augroup('DotNetCompiler', { clear = true })
+vim.api.nvim_create_augroup('GolangCompiler', { clear = true })
+
+vim.api.nvim_create_autocmd({ 'BufReadPost' }, {
+  group = 'DotNetCompiler',
+  pattern = { '*.cs', '*.csproj', '*.sln' },
+  command = 'compiler dotnet',
+})
+
+vim.api.nvim_create_autocmd({ 'BufReadPost' }, {
+  group = 'GolangCompiler',
+  pattern = { '*.go' },
+  command = 'compiler go',
 })

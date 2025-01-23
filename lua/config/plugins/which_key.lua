@@ -18,6 +18,8 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>t_', hidden = true },
       { '<leader>w', group = '[W]orkspace' },
       { '<leader>w_', hidden = true },
+      { '<leader>cc', group = 'Code compile' },
+      { '<leader>cc_', hidden = true },
     }
     -- visual mode
     require('which-key').add({
