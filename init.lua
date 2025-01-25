@@ -172,15 +172,16 @@ require('lazy').setup({
     },
   },
   {
-    'rachartier/tiny-code-action.nvim',
-    dependencies = {
-      { 'nvim-lua/plenary.nvim' },
-      { 'nvim-telescope/telescope.nvim' },
+    'aznhe21/actions-preview.nvim',
+    keys = {
+      {
+        '<leader>ca',
+        function()
+          require('actions-preview').code_actions()
+        end,
+        mode = { 'n', 'v' },
+      },
     },
-    event = 'LspAttach',
-    config = function()
-      require('tiny-code-action').setup()
-    end,
   },
   -- Go packages
   {
@@ -254,7 +255,6 @@ require('lazy').setup({
   require 'config.plugins.gitsigns',
   require 'config.plugins.treesitter',
   require 'config.nvim-lspconfig',
-  require 'custom-code-actions',
 
   { -- Autoformat
     'stevearc/conform.nvim',
@@ -287,7 +287,6 @@ require('lazy').setup({
       },
     },
   },
-
   {
     -- html auto tag closer
     'windwp/nvim-ts-autotag',

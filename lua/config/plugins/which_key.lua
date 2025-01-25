@@ -20,8 +20,8 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>w_', hidden = true },
       { '<leader>cc', group = 'Code compile' },
       { '<leader>cc_', hidden = true },
-      { '<leader>cb', group = 'Code action preview' },
-      { '<leader>cb_', hidden = true },
+      { '<leader>ca', group = 'Code action preview' },
+      { '<leader>ca_', hidden = true },
     }
     -- visual mode
     require('which-key').add({
