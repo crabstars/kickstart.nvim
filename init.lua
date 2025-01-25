@@ -171,7 +171,18 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    'aznhe21/actions-preview.nvim',
+    keys = {
+      {
+        '<leader>ca',
+        function()
+          require('actions-preview').code_actions()
+        end,
+        mode = { 'n', 'v' },
+      },
+    },
+  },
   -- Go packages
   {
     'ray-x/go.nvim',
@@ -244,7 +255,6 @@ require('lazy').setup({
   require 'config.plugins.gitsigns',
   require 'config.plugins.treesitter',
   require 'config.nvim-lspconfig',
-  require 'custom-code-actions',
 
   { -- Autoformat
     'stevearc/conform.nvim',
@@ -277,7 +287,6 @@ require('lazy').setup({
       },
     },
   },
-
   {
     -- html auto tag closer
     'windwp/nvim-ts-autotag',
