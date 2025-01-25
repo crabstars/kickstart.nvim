@@ -22,10 +22,29 @@ return {
           }
         end,
       },
-      priority = -1, -- Set a low priority so it's the last in the list
     }
 
     -- Initialize null-ls
-    null_ls.setup()
+    null_ls.setup {
+      on_attach = function(client, bufnr)
+        -- Custom sorting logic for code actions
+        vim.lsp.handlers['textDocument/codeAction'] = function(err, actions, ctx, config)
+          if not err and actions then
+            -- Add sorting logic here to move "hi mom" to the end
+            table.sort(actions, function(a, b)
+              if a.title == 'add "hi mom"' then
+                return false
+              elseif b.title == 'add "hi mom"' then
+                return true
+              else
+                return a.title < b.title
+              end
+            end)
+          end
+          -- Call the default handler
+          vim.lsp.handlers['textDocument/codeAction'](err, actions, ctx, config)
+        end
+      end,
+    }
   end,
 }
