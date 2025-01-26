@@ -122,12 +122,6 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- local overloads = require 'config/plugins/lsp_overloads'
--- vim.api.nvim_create_user_command('ShowOverloads', overloads.show_all_overloads, { desc = 'Show all function overloads' })
--- vim.api.nvim_set_keymap('n', '<C-k>', ':lua require("config.plugins.lsp_overloads").show_all_overloads()<CR>', { noremap = true, silent = true })
-local overloads = require 'config/plugins/lsp_overloads'
-vim.api.nvim_create_user_command('ShowOverloads', overloads.show_all_overloads, { desc = 'Show all function overloads' })
-vim.api.nvim_set_keymap('n', '<C-k>', '<Cmd>lua require("config.plugins.lsp_overloads").show_all_overloads()<CR>', { noremap = true, silent = true })
 ------------------------------
 --  To check the current status of your plugins, run
 --    :Lazy
