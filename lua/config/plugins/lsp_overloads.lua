@@ -19,6 +19,7 @@ vim.print 'hello from overload'
 
 local function create_window()
   local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, 0, false, { 'hallo' })
   local opts = {
     relative = 'editor',
     width = 50,

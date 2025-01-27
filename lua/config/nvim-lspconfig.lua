@@ -30,53 +30,15 @@ return { -- LSP Configuration & Plugins
           vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
 
-        local set_csharp_mappings = function()
-          vim.api.nvim_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', 'gI', '<cmd>lua vim.lsp.buf.implementation()<CR>', { noremap = true, silent = true })
-          vim.api.nvim_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.typeDefinition()<CR>', { noremap = true, silent = true })
-        end
-
-        -- Function to set generic LSP mappings
-        local set_generic_mappings = function()
-          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-          map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-          map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-        end
-
-        -- Determine file type and set appropriate mappings
-        local ft = vim.bo[event.buf].filetype
-        if ft == 'cs' then
-          set_csharp_mappings()
-        else
-          set_generic_mappings()
-        end
-
-        -- Fuzzy find all the symbols in your current document.
-        --  Symbols are things like variables, functions, types, etc.
+        map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+        map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+        map('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
         map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
-        -- Fuzzy find all the symbols in your current workspace.
-        --  Similar to document symbols, except searches over your entire project.
         map('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
-        -- Rename the variable under your cursor.
-        --  Most Language Servers support renaming across files, etc.
         map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-
-        -- Execute a code action, usually your cursor needs to be on top of an error
-        -- or a suggestion from your LSP for this to activate.
-        -- "aznhe21/actions-preview.nvim" is used
-        -- map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-        -- Opens a popup that displays documentation about the word under your cursor
-        --  See `:help K` for why this keymap.
-        map('K', vim.lsp.buf.hover, 'Hover Documentation')
-
-        -- WARN: This is not Goto Definition, this is Goto Declaration.
-        --  For example, in C this would take you to the header.
         map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+        map('K', vim.lsp.buf.hover, 'Hover Documentation')
 
         -- The following two autocommands are used to highlight references of the
         -- word under your cursor when your cursor rests there for a little while.
@@ -166,13 +128,7 @@ return { -- LSP Configuration & Plugins
         directoryFilters = { '-.git', '-.vscode', '-.idea', '-.vscode-test', '-node_modules' },
         semanticTokens = true,
       },
-      -- omnisharp = {
-      --   -- handlers = {
-      --   --   ['textDocument/definition'] = require('omnisharp_extended').handler,
-      --   -- },
-      -- },
       rust_analyzer = {},
-      -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 
       lua_ls = {
         settings = {
