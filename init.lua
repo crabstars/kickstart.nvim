@@ -243,6 +243,7 @@ require('lazy').setup({
   require 'config.plugins.autopairs',
   require 'config.plugins.gitsigns',
   require 'config.plugins.treesitter',
+  require 'config.plugins.gopher',
   require 'config.nvim-lspconfig',
   require 'custom-code-actions',
 
